@@ -18,8 +18,8 @@ const handler: NextApiHandler = async (req, res) => {
                     },
                 ],
                 mode: 'payment',
-                success_url: `${req.headers.origin}/checkout/?success=true`,
-                cancel_url: `${req.headers.origin}/checkout/?canceled=true`,
+                success_url: `${req.headers.origin}/?success=true`,
+                cancel_url: `${req.headers.origin}/?canceled=true`,
             });
             res.redirect(303, session.url);
         } catch (err: any) {

@@ -1,141 +1,54 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '~/styles/Home.module.css'
-import Link from 'next/link'
-import { loadStripe } from '@stripe/stripe-js';
-import { NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY } from '~/lib/keys'
+import React from 'react';
+import { loadStripe, Stripe } from '@stripe/stripe-js';
+import { NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY } from '~/lib/keys';
+import styles from './index.module.css';
+import { ProductCard } from '~/lib/components/ProductCard';
+import { useProducts } from '~/lib/hooks/useProducts';
 
-const inter = Inter({ subsets: ['latin'] })
+// Make sure to call `loadStripe` outside of a component’s render to avoid
+// recreating the `Stripe` object on every render.
+const _stripePromise = loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
-export default function Home() {
-    const handlePressedBuy = () => {
+const PreviewPage: React.FC = () => {
 
-        alert('yo');
-    };
+    const [stripe, setStripe] = React.useState<Stripe | null>(null);
+    const { products } = useProducts();
+
+    React.useEffect(() => {
+        if (!stripe) { return; }
+        const asyncStuff = async () => {
+            const newStripe = await loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+            setStripe(newStripe);
+        };
+        asyncStuff();
+    }, [stripe])
+
+    React.useEffect(() => {
+        // Check to see if this is a redirect back from Checkout
+        const query = new URLSearchParams(window.location.search);
+        if (query.get('success')) {
+            alert('Order placed! You will receive an email confirmation.');
+        }
+
+        if (query.get('canceled')) {
+            alert('Order canceled -- continue to shop around and checkout when you’re ready.');
+        }
+    }, []);
+
+    const productCards = products.map((p, i) => <ProductCard product={p} key={i} />);
 
     return (
         <>
-            <Head>
-                <title>TMI</title>
-                <meta name="description" content="Minimal checkout page for TrueMed Interview" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <link rel="icon" href="/tm_ico.png" />
-            </Head>
-            <main className={styles.main}>
-
-                <div className={styles.buyButton} onClick={handlePressedBuy}>
-                    Yo
-                </div>
-                <Link href='/checkout'>
-                    <div className={styles.buyButton}>
+            {productCards}
+            <form action="/api/checkout_session" method="POST">
+                <section className={styles.section}>
+                    <button className={styles.button} type="submit" role="link">
                         Checkout
-                    </div>
-                </Link>
-                <div className={styles.description}>
-                    <p>
-                        Get started by editing&nbsp;
-                        <code className={styles.code}>src/pages/index.tsx</code>
-                    </p>
-                    <Link href={'/buy'} />
-                    <div>
-                        <a
-                            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            By{' '}
-                            <Image
-                                src="/vercel.svg"
-                                alt="Vercel Logo"
-                                className={styles.vercelLogo}
-                                width={100}
-                                height={24}
-                                priority
-                            />
-                        </a>
-                    </div>
-                </div>
-
-                <div className={styles.center}>
-                    <Image
-                        className={styles.logo}
-                        src="/next.svg"
-                        alt="Next.js Logo"
-                        width={180}
-                        height={37}
-                        priority
-                    />
-                    <div className={styles.thirteen}>
-                        <Image
-                            src="/thirteen.svg"
-                            alt="13"
-                            width={40}
-                            height={31}
-                            priority
-                        />
-                    </div>
-                </div>
-
-                <div className={styles.grid}>
-                    <a
-                        href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-                        className={styles.card}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <h2 className={inter.className}>
-                            Miller <span>-&gt;</span>
-                        </h2>
-                        <p className={inter.className}>
-                            Find in-depth information about Next.js features and&nbsp;API.
-                        </p>
-                    </a>
-
-                    <a
-                        href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-                        className={styles.card}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <h2 className={inter.className}>
-                            Learn <span>-&gt;</span>
-                        </h2>
-                        <p className={inter.className}>
-                            Learn about Next.js in an interactive course with&nbsp;quizzes!
-                        </p>
-                    </a>
-
-                    <a
-                        href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-                        className={styles.card}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <h2 className={inter.className}>
-                            Templates <span>-&gt;</span>
-                        </h2>
-                        <p className={inter.className}>
-                            Discover and deploy boilerplate example Next.js&nbsp;projects.
-                        </p>
-                    </a>
-
-                    <a
-                        href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-                        className={styles.card}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <h2 className={inter.className}>
-                            Deploy <span>-&gt;</span>
-                        </h2>
-                        <p className={inter.className}>
-                            Instantly deploy your Next.js site to a shareable URL
-                            with&nbsp;Vercel.
-                        </p>
-                    </a>
-                </div>
-            </main>
+                    </button>
+                </section>
+            </form>
         </>
-    )
-}
+    );
+};
+
+export default PreviewPage;
