@@ -1,12 +1,28 @@
 import React from 'react';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY } from '~/lib/keys';
+import styles from './checkout.module.css';
+import { ProductCard } from '~/lib/components/ProductCard';
+import { Product, ProductsResponse } from '~/lib/models';
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
 const _stripePromise = loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 const PreviewPage: React.FC = () => {
+
+    const [stripe, setStripe] = React.useState<Stripe | null>(null);
+    const [products, setProducts] = React.useState<Product[]>([]);
+
+    React.useEffect(() => {
+        if (!stripe) { return; }
+        const asyncStuff = async () => {
+            const newStripe = await loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+            setStripe(newStripe);
+        };
+        asyncStuff();
+    }, [stripe])
+
     React.useEffect(() => {
         // Check to see if this is a redirect back from Checkout
         const query = new URLSearchParams(window.location.search);
@@ -19,41 +35,32 @@ const PreviewPage: React.FC = () => {
         }
     }, []);
 
+    React.useEffect(() => {
+        if (products.length > 0) { return; }
+        const asyncStuff = async () => {
+            const res = await fetch('/api/products', {
+                method: "GET",
+            });
+            const parsedResponse = (await res.json()) as ProductsResponse;
+            setProducts(parsedResponse.products);
+            console.log(JSON.stringify(res));
+        };
+        asyncStuff();
+    }, [products, setProducts])
+
+    const productCards = products.map((p, i) => <ProductCard product={p} key={i} />);
+
     return (
-        <form action="/api/checkout_session" method="POST">
-            <section>
-                <button type="submit" role="link">
-                    Checkout
-                </button>
-            </section>
-            <style jsx>
-                {`
-              section {
-                background: #ffffff;
-                display: flex;
-                flex-direction: column;
-                width: 400px;
-                height: 112px;
-                border-radius: 6px;
-                justify-content: space-between;
-              }
-              button {
-                height: 36px;
-                background: #556cd6;
-                border-radius: 4px;
-                color: white;
-                border: 0;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                box-shadow: 0px 4px 5.5px 0px rgba(0, 0, 0, 0.07);
-              }
-              button:hover {
-                opacity: 0.8;
-              }
-            `}
-            </style>
-        </form>
+        <>
+            {productCards}
+            <form action="/api/checkout_session" method="POST">
+                <section className={styles.section}>
+                    <button className={styles.button} type="submit" role="link">
+                        Checkout
+                    </button>
+                </section>
+            </form>
+        </>
     );
 };
 

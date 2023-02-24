@@ -1,11 +1,14 @@
 import { NextApiHandler } from "next";
 import { STRIPE_SECRET_KEY } from "~/lib/keys";
+import { CheckoutRequest } from "~/lib/models";
 
 const stripe = require('stripe')(STRIPE_SECRET_KEY);
 
 const handler: NextApiHandler = async (req, res) => {
     if (req.method === 'POST') {
         try {
+            const body = JSON.parse(req.body) as CheckoutRequest;
+
             // Create Checkout Sessions from body params.
             const session = await stripe.checkout.sessions.create({
                 line_items: [
