@@ -49,17 +49,15 @@ const PreviewPage: React.FC = () => {
     }
 
     const dec = (price_id: string) => {
-        const inc = (price_id: string) => {
-            const newItems = {
-                ...items,
-            };
-            if (items[price_id] && items[price_id] > 0) {
-                newItems[price_id] -= 1;
-            }
-
-            setItems(newItems);
-            setValue("items", JSON.stringify(items));
+        const newItems = {
+            ...items,
+        };
+        if (items[price_id] && items[price_id] > 0) {
+            newItems[price_id] -= 1;
         }
+
+        setItems(newItems);
+        setValue("items", JSON.stringify(items));
     }
 
     const productCards = products.map((p, i) => <ProductCard product={p} key={i} quantity={items[p.price_id]} inc={inc} dec={dec} />);
