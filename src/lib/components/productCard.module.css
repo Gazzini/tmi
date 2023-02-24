@@ -1,0 +1,8 @@
+.main {
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
+    border-radius: 20px;
+    padding: 20px;
+    margin: 20px;
+}

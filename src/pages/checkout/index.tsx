@@ -3,7 +3,7 @@ import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY } from '~/lib/keys';
 import styles from './checkout.module.css';
 import { ProductCard } from '~/lib/components/ProductCard';
-import { Product, ProductsResponse } from '~/lib/models';
+import { useProducts } from '~/lib/hooks/useProducts';
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
@@ -12,7 +12,7 @@ const _stripePromise = loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 const PreviewPage: React.FC = () => {
 
     const [stripe, setStripe] = React.useState<Stripe | null>(null);
-    const [products, setProducts] = React.useState<Product[]>([]);
+    const { products } = useProducts();
 
     React.useEffect(() => {
         if (!stripe) { return; }
@@ -34,19 +34,6 @@ const PreviewPage: React.FC = () => {
             alert('Order canceled -- continue to shop around and checkout when you’re ready.');
         }
     }, []);
-
-    React.useEffect(() => {
-        if (products.length > 0) { return; }
-        const asyncStuff = async () => {
-            const res = await fetch('/api/products', {
-                method: "GET",
-            });
-            const parsedResponse = (await res.json()) as ProductsResponse;
-            setProducts(parsedResponse.products);
-            console.log(JSON.stringify(res));
-        };
-        asyncStuff();
-    }, [products, setProducts])
 
     const productCards = products.map((p, i) => <ProductCard product={p} key={i} />);
 

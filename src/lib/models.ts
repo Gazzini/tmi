@@ -2,6 +2,8 @@
 export type ProductID = 'avocados' | 'broccoli' | 'cauliflower' | 'beef';
 export interface Product {
     id: ProductID;
+    price_id: string;
+    price_string_usd: string;
     name: string;
     desc: string;
     image_url: string | null;
