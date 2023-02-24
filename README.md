@@ -1,8 +1,13 @@
 This is an example checkout page hacked together for the True Medicine tech interview!
 
-## Getting Started
+It's hosted here:
+[tmi-gazzini.vercel.app](https://tmi-gazzini.vercel.app/)
 
-### Running the web app
+## Running Locally
+
+Clone this repository!
+`git clone https://github.com/Gazzini/tmi.git && cd tmi`
+
 Make sure you're in the root directory (the same one as this `README.md` file), and run the following 2 commands:
 
 ```
