@@ -1,7 +1,6 @@
 /// Common types:
-export type ProductID = 'avocados' | 'broccoli' | 'cauliflower' | 'beef';
 export interface Product {
-    id: ProductID;
+    id: string;
     price_id: string;
     price_string_usd: string;
     name: string;
@@ -10,11 +9,11 @@ export interface Product {
 }
 
 /// Req types:
-type ProductAndQuantity = {
-    [key in ProductID]: number;
+export type PriceIDAndQuantity = {
+    [key: string]: number;
 };
 export interface CheckoutRequest {
-    items: ProductAndQuantity;
+    items: PriceIDAndQuantity;
 }
 export interface ProductsResponse {
     products: Product[];

@@ -6,3 +6,13 @@
     padding: 20px;
     margin: 20px;
 }
+
+.quantity {
+    display: flex;
+    flex-direction: row;
+}
+
+.button {
+    margin-left: 5px;
+    margin-right: 5px;
+}

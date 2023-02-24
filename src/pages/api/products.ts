@@ -11,9 +11,6 @@ const handler: NextApiHandler = async (_, res) => {
         limit: 100,
     });
 
-    console.log('Products!!!!!!!!!!!!!!');
-    console.log(JSON.stringify(stripeProducts));
-
     const products: Product[] = stripeProducts.data.map((d: any) => ({
         id: d.id,
         price_id: d.default_price,
@@ -35,10 +32,12 @@ const handler: NextApiHandler = async (_, res) => {
             p.price_string_usd = '';
         } else {
             const price = await stripe.prices.retrieve(p.price_id);
-            p.price_string_usd = formatter.format(price.unit_amount);
+            p.price_string_usd = formatter.format(price.unit_amount / 100);
         }
     });
     await Promise.all(pricePromises);
+
+    console.dir(products);
 
     res.json({
         products,
